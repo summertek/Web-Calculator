@@ -1,5 +1,6 @@
 (ns my.calc
-  (:require   [enfocus.core :as ef]
+  (:require   [clojure.string :as string]
+	      [enfocus.core :as ef]
               [enfocus.effects :as effects]
               [enfocus.events :as events]
               [goog.dom :as gdom])
@@ -10,39 +11,16 @@
 ;;************************************************
 (def dev-mode true)
 
-(defaction sub-demo []
-  "#button2" (ef/substitute "I replaced the button"))
-
-(defaction sub-demo2 [msg]
-  "#button2" (ef/substitute msg))
-
 (defaction change3 [msg]
-  "#button2" (ef/content msg))
+  "#display" (ef/append msg))
 
-(defaction change [target msg]
-  target (ef/content msg))
-
-(defaction change1 []
-   "#button2" #(ef/content "I have been clicked"))
-
-(defn change2 []
-  (ef/at js/document ["#button1"]  #(ef/content   "I have been clicked")))
-
-(defn hello [button msg]
-   (gdom/setTextContent (gdom/getElement button) "I have been clicked")
-   (js/alert (gdom/getTextContent (gdom/getElement "button1") )))
-
-(defaction setup2 []
-  "#button2" (events/listen :click #(sub-demo2 "I have been clicked")))
+(defn whoclicked []
+   (let [a (this-as window (.event.toElement.id.toString window))]
+        (js/alert a)
+        (string/replace-first a "Num" "#Num")))
 
 (defaction setup []
-  "#button2" (events/listen :click #(change3 "I have been clicked")))
-
-(defaction setupn1 []
-  "#button2" (events/listen :click change1))
-
-(defaction setupworks []
-  "#button1" (events/listen :click #(hello "button2" "hello there")))
+  ".digit" (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
 
 (set! (.-onload js/window) setup)
 

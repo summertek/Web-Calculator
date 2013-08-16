@@ -35587,49 +35587,22 @@ goog.require("goog.dom");
 goog.require("enfocus.events");
 goog.require("enfocus.effects");
 goog.require("enfocus.core");
+goog.require("clojure.string");
 my.calc.dev_mode = true;
-my.calc.sub_demo = function sub_demo() {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.core.substitute.call(null, "I replaced the button"))
-};
-my.calc.sub_demo2 = function sub_demo2(msg) {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.core.substitute.call(null, msg))
-};
 my.calc.change3 = function change3(msg) {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.core.content.call(null, msg))
+  return enfocus.core.at.call(null, document, "#display", enfocus.core.append.call(null, msg))
 };
-my.calc.change = function change(target, msg) {
-  return enfocus.core.at.call(null, document, target, enfocus.core.content.call(null, msg))
-};
-my.calc.change1 = function change1() {
-  return enfocus.core.at.call(null, document, "#button2", function() {
-    return enfocus.core.content.call(null, "I have been clicked")
-  })
-};
-my.calc.change2 = function change2() {
-  return enfocus.core.at.call(null, document, cljs.core.PersistentVector.fromArray(["#button1"], true), function() {
-    return enfocus.core.content.call(null, "I have been clicked")
-  })
-};
-my.calc.hello = function hello(button, msg) {
-  goog.dom.setTextContent(goog.dom.getElement(button), "I have been clicked");
-  return alert(goog.dom.getTextContent(goog.dom.getElement("button1")))
-};
-my.calc.setup2 = function setup2() {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return my.calc.sub_demo2.call(null, "I have been clicked")
-  }))
+my.calc.whoclicked = function whoclicked() {
+  var a = function() {
+    var window = this;
+    return window.event.toElement.id.toString()
+  }();
+  alert(a);
+  return clojure.string.replace_first.call(null, a, "Num", "#Num")
 };
 my.calc.setup = function setup() {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return my.calc.change3.call(null, "I have been clicked")
-  }))
-};
-my.calc.setupn1 = function setupn1() {
-  return enfocus.core.at.call(null, document, "#button2", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.change1))
-};
-my.calc.setupworks = function setupworks() {
-  return enfocus.core.at.call(null, document, "#button1", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return my.calc.hello.call(null, "button2", "hello there")
+  return enfocus.core.at.call(null, document, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
   }))
 };
 window.onload = my.calc.setup;
