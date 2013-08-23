@@ -92,7 +92,7 @@
       <td>
       </td>
       <td><button id="Num0" class="digit" type="button">0</button><br></td>
-      <td><button id="period" class="digit" type="button">.</button><br></td>
+      <td><button id="Num0" class="digit" type="button">.</button><br></td>
       </td  style="vertical-align: middle; text-align: right;">
       <td><button id="final" class="apply" type="button">=</button></td>
       <td>

@@ -35590,19 +35590,52 @@ goog.require("enfocus.core");
 goog.require("clojure.string");
 my.calc.dev_mode = true;
 my.calc.change3 = function change3(msg) {
-  return enfocus.core.at.call(null, document, "#display", enfocus.core.append.call(null, msg))
+  enfocus.core.at.call(null, "#display", enfocus.core.append.call(null, msg));
+  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
+};
+my.calc.clear = function clear() {
+  enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""));
+  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
 my.calc.whoclicked = function whoclicked() {
   var a = function() {
     var window = this;
     return window.event.toElement.id.toString()
   }();
-  alert(a);
   return clojure.string.replace_first.call(null, a, "Num", "#Num")
 };
-my.calc.setup = function setup() {
-  return enfocus.core.at.call(null, document, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+my.calc.digit_events = function digit_events() {
+  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
+  }));
+  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
+};
+my.calc.clear_events = function clear_events() {
+  enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return my.calc.clear.call(null)
+  }));
+  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
+};
+my.calc.key_event = function key_event() {
+  var keypressed = function() {
+    var window = this;
+    return window.event.keyCode.toString()
+  }();
+  return String.fromCharCode(keypressed)
+};
+my.calc.setup_events = function setup_events() {
+  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
+  }));
+  enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return my.calc.clear.call(null)
+  }));
+  return enfocus.core.at.call(null, "#display", enfocus.events.listen.call(null, "\ufdd0:keypress", function() {
+    return alert(my.calc.key_event.call(null))
   }))
+};
+my.calc.setup = function setup() {
+  my.calc.setup_events.call(null);
+  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
 window.onload = my.calc.setup;
