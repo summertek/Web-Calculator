@@ -35581,16 +35581,75 @@ enfocus.effects.circular_in_out = function circular_in_out(t) {
     return-0.5 * (Math.sqrt(1 - Math.pow(nt, 2)) + 1)
   }
 };
+goog.provide("cljs.core.match");
+goog.require("cljs.core");
+cljs.core.match.backtrack = new Error;
 goog.provide("my.calc");
 goog.require("cljs.core");
+goog.require("goog.string");
 goog.require("goog.dom");
 goog.require("enfocus.events");
 goog.require("enfocus.effects");
 goog.require("enfocus.core");
+goog.require("cljs.core.match");
 goog.require("clojure.string");
 my.calc.dev_mode = true;
+my.calc.doMultiply = function doMultiply() {
+  return alert("time to multiply")
+};
+my.calc.doAdd = function doAdd() {
+  return alert("time to Add")
+};
+my.calc.doSubtract = function doSubtract() {
+  return alert("time to Subtract")
+};
+my.calc.doDivide = function doDivide() {
+  return alert("time to Divide")
+};
+my.calc.enterDecimal = function enterDecimal() {
+  var contents = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
+  if(cljs.core.truth_(goog.string.contains(contents, "."))) {
+    return cljs.core.List.EMPTY
+  }else {
+    return enfocus.core.at.call(null, "#display", enfocus.core.append.call(null, "."))
+  }
+};
 my.calc.change3 = function change3(msg) {
-  enfocus.core.at.call(null, "#display", enfocus.core.append.call(null, msg));
+  if(function() {
+    var and__3941__auto__ = "9" >= msg;
+    if(and__3941__auto__) {
+      return"0" <= msg
+    }else {
+      return and__3941__auto__
+    }
+  }()) {
+    enfocus.core.at.call(null, "#display", enfocus.core.append.call(null, msg))
+  }else {
+    if(cljs.core._EQ_.call(null, ".", msg)) {
+      my.calc.enterDecimal.call(null)
+    }else {
+      if(cljs.core._EQ_.call(null, "*", msg)) {
+        my.calc.doMultiply.call(null)
+      }else {
+        if(cljs.core._EQ_.call(null, "+", msg)) {
+          my.calc.doAdd.call(null)
+        }else {
+          if(cljs.core._EQ_.call(null, "-", msg)) {
+            my.calc.doSubtract.call(null)
+          }else {
+            if(cljs.core._EQ_.call(null, "/", msg)) {
+              my.calc.doDivide.call(null)
+            }else {
+              if("\ufdd0:else") {
+                alert(msg)
+              }else {
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
 my.calc.clear = function clear() {
@@ -35602,7 +35661,7 @@ my.calc.whoclicked = function whoclicked() {
     var window = this;
     return window.event.toElement.id.toString()
   }();
-  return clojure.string.replace_first.call(null, a, "Num", "#Num")
+  return"#" + a
 };
 my.calc.digit_events = function digit_events() {
   enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
@@ -35617,11 +35676,96 @@ my.calc.clear_events = function clear_events() {
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
 my.calc.key_event = function key_event() {
-  var keypressed = function() {
+  var keypressed = String.fromCharCode(function() {
     var window = this;
     return window.event.keyCode.toString()
-  }();
-  return String.fromCharCode(keypressed)
+  }());
+  try {
+    if(cljs.core._EQ_.call(null, keypressed, "0")) {
+      return"0"
+    }else {
+      if(cljs.core._EQ_.call(null, keypressed, "1")) {
+        return"1"
+      }else {
+        if(cljs.core._EQ_.call(null, keypressed, "2")) {
+          return"2"
+        }else {
+          if(cljs.core._EQ_.call(null, keypressed, "3")) {
+            return"3"
+          }else {
+            if(cljs.core._EQ_.call(null, keypressed, "4")) {
+              return"4"
+            }else {
+              if(cljs.core._EQ_.call(null, keypressed, "5")) {
+                return"5"
+              }else {
+                if(cljs.core._EQ_.call(null, keypressed, "6")) {
+                  return"6"
+                }else {
+                  if(cljs.core._EQ_.call(null, keypressed, "7")) {
+                    return"7"
+                  }else {
+                    if(cljs.core._EQ_.call(null, keypressed, "8")) {
+                      return"8"
+                    }else {
+                      if(cljs.core._EQ_.call(null, keypressed, "9")) {
+                        return"9"
+                      }else {
+                        if(cljs.core._EQ_.call(null, keypressed, ".")) {
+                          return"."
+                        }else {
+                          if(cljs.core._EQ_.call(null, keypressed, "+")) {
+                            return"+"
+                          }else {
+                            if(cljs.core._EQ_.call(null, keypressed, "-")) {
+                              return"-"
+                            }else {
+                              if(cljs.core._EQ_.call(null, keypressed, "/")) {
+                                return"/"
+                              }else {
+                                if(cljs.core._EQ_.call(null, keypressed, "=")) {
+                                  return"="
+                                }else {
+                                  if(cljs.core._EQ_.call(null, keypressed, "*")) {
+                                    return"*"
+                                  }else {
+                                    if("\ufdd0:else") {
+                                      throw cljs.core.match.backtrack;
+                                    }else {
+                                      return null
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }catch(e5210) {
+    if(e5210 instanceof Error) {
+      var e__4489__auto__ = e5210;
+      if(e__4489__auto__ === cljs.core.match.backtrack) {
+        return""
+      }else {
+        throw e__4489__auto__;
+      }
+    }else {
+      if("\ufdd0:else") {
+        throw e5210;
+      }else {
+        return null
+      }
+    }
+  }
 };
 my.calc.setup_events = function setup_events() {
   enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
@@ -35630,8 +35774,11 @@ my.calc.setup_events = function setup_events() {
   enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.clear.call(null)
   }));
-  return enfocus.core.at.call(null, "#display", enfocus.events.listen.call(null, "\ufdd0:keypress", function() {
-    return alert(my.calc.key_event.call(null))
+  enfocus.core.at.call(null, "#body", enfocus.events.listen.call(null, "\ufdd0:keypress", function() {
+    return my.calc.change3.call(null, my.calc.key_event.call(null))
+  }));
+  return enfocus.core.at.call(null, "#body", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
   }))
 };
 my.calc.setup = function setup() {
