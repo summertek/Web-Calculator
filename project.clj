@@ -12,9 +12,15 @@
 
   :cljsbuild
   {:builds
-   [{
+   [{:id "test"
       :source-paths ["src/cljs/"]
       :compiler {
+                :output-to "resources/public/js/calculator.js"}}
+    {:id "production"
+      :source-paths ["src/cljs/"]
+      :compiler {:optimizations :advanced
+                :pretty-print false
+                :static-fns true
                 :output-to "resources/public/js/calculator.js"}}]}
                 )
 

@@ -35594,7 +35594,12 @@ goog.require("enfocus.core");
 goog.require("cljs.core.match");
 goog.require("clojure.string");
 my.calc.dev_mode = true;
+my.calc.accumulator = null;
+my.calc.outStandingOperator = null;
 my.calc.doMultiply = function doMultiply() {
+  my.calc.accumulator = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
+  my.calc.outStandingOperator = "*";
+  enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""));
   return alert("time to multiply")
 };
 my.calc.doAdd = function doAdd() {
@@ -35615,6 +35620,7 @@ my.calc.enterDecimal = function enterDecimal() {
   }
 };
 my.calc.change3 = function change3(msg) {
+  alert(msg);
   if(function() {
     var and__3941__auto__ = "9" >= msg;
     if(and__3941__auto__) {
@@ -35657,10 +35663,12 @@ my.calc.clear = function clear() {
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
 my.calc.whoclicked = function whoclicked() {
+  alert("whoclicked");
   var a = function() {
     var window = this;
     return window.event.toElement.id.toString()
   }();
+  alert(a);
   return"#" + a
 };
 my.calc.digit_events = function digit_events() {
@@ -35678,7 +35686,7 @@ my.calc.clear_events = function clear_events() {
 my.calc.key_event = function key_event() {
   var keypressed = String.fromCharCode(function() {
     var window = this;
-    return window.event.keyCode.toString()
+    return window.event.which.toString()
   }());
   try {
     if(cljs.core._EQ_.call(null, keypressed, "0")) {
@@ -35750,25 +35758,32 @@ my.calc.key_event = function key_event() {
         }
       }
     }
-  }catch(e5210) {
-    if(e5210 instanceof Error) {
-      var e__4489__auto__ = e5210;
-      if(e__4489__auto__ === cljs.core.match.backtrack) {
+  }catch(e5226) {
+    if(e5226 instanceof Error) {
+      var e__4505__auto__ = e5226;
+      if(e__4505__auto__ === cljs.core.match.backtrack) {
         return""
       }else {
-        throw e__4489__auto__;
+        throw e__4505__auto__;
       }
     }else {
       if("\ufdd0:else") {
-        throw e5210;
+        throw e5226;
       }else {
         return null
       }
     }
   }
 };
+my.calc.an_event = function an_event(e) {
+  return alert(e.target.id)
+};
 my.calc.setup_events = function setup_events() {
-  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.an_event));
+  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:touchstart", function() {
+    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
+  }));
+  enfocus.core.at.call(null, ".operator", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
   }));
   enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {

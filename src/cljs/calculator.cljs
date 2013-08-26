@@ -14,7 +14,15 @@
 ;;************************************************
 (def dev-mode true)
 
+(def accumulator nil)
+(def outStandingOperator nil)
+
 (defn doMultiply []
+  (set! accumulator          (ef/from "#display" (ef/get-prop :value)))
+  (set! outStandingOperator  "*")
+
+  (ef/at "#display" (ef/content ""))
+
   (js/alert "time to multiply")
    )
 
@@ -36,7 +44,7 @@
    ) )
 
 (defn change3 [msg]
-; (js/alert msg)
+ (js/alert msg)
   (cond
      (and (>= "9" msg) (<= "0" msg))  (ef/at "#display" (ef/append msg))
      (= "." msg) 		      (enterDecimal)
@@ -52,8 +60,9 @@
   (ef/at "#display" (ef/focus)) )
 
 (defn whoclicked []
+   (js/alert "whoclicked")
    (let [a (this-as window (.event.toElement.id.toString window))]
-;        (js/alert a)
+        (js/alert a)
 ;        (string/replace-first a "Num" "#Num")))
         (+ "#" a)))
 
@@ -66,7 +75,7 @@
   (ef/at "#display" (ef/focus)) )
 
 (defn key_event []
-  (let [keypressed (js/String.fromCharCode (this-as window (.event.keyCode.toString window)))]
+  (let [keypressed (js/String.fromCharCode (this-as window (.event.which.toString window)))]
 ;    (js/alert keypressed)
      (match [keypressed]
            ["0"] "0"
@@ -88,12 +97,15 @@
            :else "")))
 ;    (js/String.fromCharCode keypressed)))
 
+(defn an_event [e]
+   (js/alert js/e.target.id ))
 
 (defn setup_events []
-  (ef/at ".digit"    (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
+  (ef/at ".digit"    (events/listen :click an_event))
+;  (ef/at ".digit"    (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
+  (ef/at ".digit"    (events/listen :touchstart #(change3 (ef/from (whoclicked) (ef/get-text)) )))
+  (ef/at ".operator" (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
   (ef/at ".clear"    (events/listen :click #(clear) ))
-;  (ef/at "#display" (events/listen :keypress #(js/alert (this-as window (.event.keyCode.toString window)))))
-;  (ef/at "#display" (events/listen :keypress #(change3 (key_event))))
   (ef/at "#body"     (events/listen :keypress #(change3 (key_event))))
   (ef/at "#body"     (events/listen :click #(ef/at "#display"  (ef/focus) )))
   )
@@ -101,8 +113,6 @@
 (defn setup []
   (setup_events)
   (ef/at "#display"  (ef/focus) ) )
-;  (digit_events)
-;  (clear_events))
 
 (set! (.-onload js/window) setup)
 
