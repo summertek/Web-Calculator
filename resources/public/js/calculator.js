@@ -35620,7 +35620,6 @@ my.calc.enterDecimal = function enterDecimal() {
   }
 };
 my.calc.change3 = function change3(msg) {
-  alert(msg);
   if(function() {
     var and__3941__auto__ = "9" >= msg;
     if(and__3941__auto__) {
@@ -35683,11 +35682,8 @@ my.calc.clear_events = function clear_events() {
   }));
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
-my.calc.key_event = function key_event() {
-  var keypressed = String.fromCharCode(function() {
-    var window = this;
-    return window.event.which.toString()
-  }());
+my.calc.key_event = function key_event(code) {
+  var keypressed = String.fromCharCode(code);
   try {
     if(cljs.core._EQ_.call(null, keypressed, "0")) {
       return"0"
@@ -35776,22 +35772,18 @@ my.calc.key_event = function key_event() {
   }
 };
 my.calc.an_event = function an_event(e) {
-  return alert(e.target.id)
+  return my.calc.change3.call(null, enfocus.core.from.call(null, "#" + e.target.id, enfocus.core.get_text.call(null)))
+};
+my.calc.keyed_event = function keyed_event(e) {
+  return my.calc.change3.call(null, my.calc.key_event.call(null, e.charCode))
 };
 my.calc.setup_events = function setup_events() {
   enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.an_event));
-  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:touchstart", function() {
-    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
-  }));
-  enfocus.core.at.call(null, ".operator", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
-  }));
+  enfocus.core.at.call(null, ".operator", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.an_event));
   enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.clear.call(null)
   }));
-  enfocus.core.at.call(null, "#body", enfocus.events.listen.call(null, "\ufdd0:keypress", function() {
-    return my.calc.change3.call(null, my.calc.key_event.call(null))
-  }));
+  enfocus.core.at.call(null, "#body", enfocus.events.listen.call(null, "\ufdd0:keypress", my.calc.keyed_event));
   return enfocus.core.at.call(null, "#body", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
   }))

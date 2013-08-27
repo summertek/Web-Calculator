@@ -44,7 +44,7 @@
    ) )
 
 (defn change3 [msg]
- (js/alert msg)
+; (js/alert msg)
   (cond
      (and (>= "9" msg) (<= "0" msg))  (ef/at "#display" (ef/append msg))
      (= "." msg) 		      (enterDecimal)
@@ -63,7 +63,6 @@
    (js/alert "whoclicked")
    (let [a (this-as window (.event.toElement.id.toString window))]
         (js/alert a)
-;        (string/replace-first a "Num" "#Num")))
         (+ "#" a)))
 
 (defn digit_events []
@@ -74,8 +73,8 @@
   (ef/at ".clear" (events/listen :click #(clear) ))
   (ef/at "#display" (ef/focus)) )
 
-(defn key_event []
-  (let [keypressed (js/String.fromCharCode (this-as window (.event.which.toString window)))]
+(defn key_event [code]
+  (let [keypressed (js/String.fromCharCode code)]
 ;    (js/alert keypressed)
      (match [keypressed]
            ["0"] "0"
@@ -98,15 +97,21 @@
 ;    (js/String.fromCharCode keypressed)))
 
 (defn an_event [e]
-   (js/alert js/e.target.id ))
+;   (js/alert js/e.target.id )
+   (change3 (ef/from (+ "#" js/e.target.id) (ef/get-text)) ) )
+
+(defn keyed_event [e]
+;   (js/alert js/e.keyCode )
+   (change3 (key_event js/e.charCode) ))
+
 
 (defn setup_events []
   (ef/at ".digit"    (events/listen :click an_event))
 ;  (ef/at ".digit"    (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
-  (ef/at ".digit"    (events/listen :touchstart #(change3 (ef/from (whoclicked) (ef/get-text)) )))
-  (ef/at ".operator" (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
+;  (ef/at ".digit"    (events/listen :touchstart #(change3 (ef/from (whoclicked) (ef/get-text)) )))
+  (ef/at ".operator" (events/listen :click an_event))
   (ef/at ".clear"    (events/listen :click #(clear) ))
-  (ef/at "#body"     (events/listen :keypress #(change3 (key_event))))
+  (ef/at "#body"     (events/listen :keypress keyed_event))
   (ef/at "#body"     (events/listen :click #(ef/at "#display"  (ef/focus) )))
   )
 
