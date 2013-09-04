@@ -35594,22 +35594,87 @@ goog.require("enfocus.core");
 goog.require("cljs.core.match");
 goog.require("clojure.string");
 my.calc.dev_mode = true;
-my.calc.accumulator = null;
-my.calc.outStandingOperator = null;
+my.calc.accumulator = cljs.core.List.EMPTY;
+my.calc.validKeys = cljs.core.PersistentHashSet.fromArray(["*", null, "+", null, "-", null, ".", null, "/", null, "0", null, "1", null, "2", null, "3", null, "4", null, "5", null, "6", null, "7", null, "8", null, "9", null, "=", null], true);
+my.calc.toAccumulator = function toAccumulator(operator) {
+  if(cljs.core._EQ_.call(null, operator, "")) {
+    return my.calc.accumulator = cljs.core.List.EMPTY
+  }else {
+    var acc = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
+    return my.calc.accumulator = cljs.core.list.call(null, operator, acc)
+  }
+};
+my.calc.doCalc = function doCalc(newaction, buffer) {
+  var prev = buffer;
+  var current = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, prev), "*")) {
+    var newValue = (cljs.core.second.call(null, prev) * current).toString();
+    my.calc.toAccumulator.call(null, newaction, newValue);
+    return newValue
+  }else {
+    if(cljs.core._EQ_.call(null, cljs.core.first.call(null, prev), "+")) {
+      var newValue = (Number(cljs.core.second.call(null, prev)) + Number(current)).toString();
+      my.calc.toAccumulator.call(null, newaction, newValue);
+      return newValue
+    }else {
+      if(cljs.core._EQ_.call(null, cljs.core.first.call(null, prev), "-")) {
+        var newValue = (Number(cljs.core.second.call(null, prev)) - Number(current)).toString();
+        my.calc.toAccumulator.call(null, newaction, newValue);
+        return newValue
+      }else {
+        if(cljs.core._EQ_.call(null, cljs.core.first.call(null, prev), "/")) {
+          var newValue = (cljs.core.second.call(null, prev) / current).toString();
+          my.calc.toAccumulator.call(null, newaction, newValue);
+          return newValue
+        }else {
+          return null
+        }
+      }
+    }
+  }
+};
 my.calc.doMultiply = function doMultiply() {
-  my.calc.accumulator = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
-  my.calc.outStandingOperator = "*";
-  enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""));
-  return alert("time to multiply")
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, my.calc.accumulator), null)) {
+    my.calc.toAccumulator.call(null, "*");
+    enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+  }else {
+    my.calc.doCalc.call(null, "*", my.calc.accumulator)
+  }
+  return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
 };
 my.calc.doAdd = function doAdd() {
-  return alert("time to Add")
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, my.calc.accumulator), null)) {
+    my.calc.toAccumulator.call(null, "+");
+    enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+  }else {
+    my.calc.doCalc.call(null, "+", my.calc.accumulator)
+  }
+  return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
 };
 my.calc.doSubtract = function doSubtract() {
-  return alert("time to Subtract")
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, my.calc.accumulator), null)) {
+    my.calc.toAccumulator.call(null, "-");
+    enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+  }else {
+    my.calc.doCalc.call(null, "-", my.calc.accumulator)
+  }
+  return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
 };
 my.calc.doDivide = function doDivide() {
-  return alert("time to Divide")
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, my.calc.accumulator), null)) {
+    my.calc.toAccumulator.call(null, "/");
+    enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+  }else {
+    my.calc.doCalc.call(null, "/", my.calc.accumulator)
+  }
+  return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+};
+my.calc.doEqual = function doEqual() {
+  if(cljs.core._EQ_.call(null, cljs.core.first.call(null, my.calc.accumulator), null)) {
+    return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""))
+  }else {
+    return enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, my.calc.doCalc.call(null, "", my.calc.accumulator)))
+  }
 };
 my.calc.enterDecimal = function enterDecimal() {
   var contents = enfocus.core.from.call(null, "#display", enfocus.core.get_prop.call(null, "\ufdd0:value"));
@@ -35645,9 +35710,13 @@ my.calc.change3 = function change3(msg) {
             if(cljs.core._EQ_.call(null, "/", msg)) {
               my.calc.doDivide.call(null)
             }else {
-              if("\ufdd0:else") {
-                alert(msg)
+              if(cljs.core._EQ_.call(null, "=", msg)) {
+                my.calc.doEqual.call(null)
               }else {
+                if("\ufdd0:else") {
+                  alert(msg)
+                }else {
+                }
               }
             }
           }
@@ -35661,28 +35730,13 @@ my.calc.clear = function clear() {
   enfocus.core.at.call(null, "#display", enfocus.core.content.call(null, ""));
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
-my.calc.whoclicked = function whoclicked() {
-  alert("whoclicked");
-  var a = function() {
-    var window = this;
-    return window.event.toElement.id.toString()
-  }();
-  alert(a);
-  return"#" + a
-};
-my.calc.digit_events = function digit_events() {
-  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return my.calc.change3.call(null, enfocus.core.from.call(null, my.calc.whoclicked.call(null), enfocus.core.get_text.call(null)))
-  }));
-  return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
-};
 my.calc.clear_events = function clear_events() {
   enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.clear.call(null)
   }));
   return enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null))
 };
-my.calc.key_event = function key_event(code) {
+my.calc.determineKey_match = function determineKey_match(code) {
   var keypressed = String.fromCharCode(code);
   try {
     if(cljs.core._EQ_.call(null, keypressed, "0")) {
@@ -35771,15 +35825,69 @@ my.calc.key_event = function key_event(code) {
     }
   }
 };
-my.calc.an_event = function an_event(e) {
+my.calc.determineKey_cond = function determineKey_cond(code) {
+  enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null));
+  var char$ = String.fromCharCode(code);
+  if(cljs.core.contains_QMARK_.call(null, my.calc.validKeys, char$)) {
+    return char$
+  }else {
+    return""
+  }
+};
+my.calc.determineKey_cond_V1 = function determineKey_cond_V1(code) {
+  enfocus.core.at.call(null, "#display", enfocus.core.focus.call(null));
+  var char$ = String.fromCharCode(code);
+  if(function() {
+    var and__3941__auto__ = "9" >= char$;
+    if(and__3941__auto__) {
+      return"0" <= char$
+    }else {
+      return and__3941__auto__
+    }
+  }()) {
+    return char$
+  }else {
+    if(cljs.core._EQ_.call(null, ".", char$)) {
+      return char$
+    }else {
+      if(cljs.core._EQ_.call(null, "*", char$)) {
+        return char$
+      }else {
+        if(cljs.core._EQ_.call(null, "+", char$)) {
+          return char$
+        }else {
+          if(cljs.core._EQ_.call(null, "-", char$)) {
+            return char$
+          }else {
+            if(cljs.core._EQ_.call(null, "/", char$)) {
+              return char$
+            }else {
+              if(cljs.core._EQ_.call(null, "=", char$)) {
+                return char$
+              }else {
+                if("\ufdd0:else") {
+                  return char$
+                }else {
+                  return null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+my.calc.button_event = function button_event(e) {
   return my.calc.change3.call(null, enfocus.core.from.call(null, "#" + e.target.id, enfocus.core.get_text.call(null)))
 };
 my.calc.keyed_event = function keyed_event(e) {
-  return my.calc.change3.call(null, my.calc.key_event.call(null, e.charCode))
+  return my.calc.change3.call(null, my.calc.determineKey_cond.call(null, e.charCode))
 };
 my.calc.setup_events = function setup_events() {
-  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.an_event));
-  enfocus.core.at.call(null, ".operator", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.an_event));
+  enfocus.core.at.call(null, ".digit", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.button_event));
+  enfocus.core.at.call(null, ".operator", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.button_event));
+  enfocus.core.at.call(null, "#final", enfocus.events.listen.call(null, "\ufdd0:click", my.calc.button_event));
   enfocus.core.at.call(null, ".clear", enfocus.events.listen.call(null, "\ufdd0:click", function() {
     return my.calc.clear.call(null)
   }));

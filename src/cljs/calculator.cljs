@@ -14,29 +14,82 @@
 ;;************************************************
 (def dev-mode true)
 
-(def accumulator nil)
-(def outStandingOperator nil)
+(def accumulator ())
+; set of valid keys
+(def validKeys #{"0","1","2","3","4","5","6","7","8","9",".","*","/","+","-","="} )
+
+(defn toAccumulator [operator]
+    (if (= operator "")
+       (set! accumulator  ())
+
+      (let [acc (ef/from "#display" (ef/get-prop :value))]
+           (set! accumulator    (list operator acc ))))
+)
+
+(defn doCalc [newaction buffer]
+   (let [prev    buffer
+         current (ef/from "#display" (ef/get-prop :value))]
+      (cond
+         (= (first prev) "*")  (let [newValue (.toString (* (second prev) current)) ]
+                                   (toAccumulator newaction newValue)
+                                    newValue)
+         (= (first prev) "+")  (let [newValue (.toString (+ (js/Number (second prev)) (js/Number current))) ]
+                                   (toAccumulator newaction newValue)
+                                    newValue)
+         (= (first prev) "-")  (let [newValue (.toString (- (js/Number (second prev)) (js/Number current))) ]
+                                   (toAccumulator newaction newValue)
+                                    newValue)
+         (= (first prev) "/")  (let [newValue (.toString (/ (second prev) current)) ]
+                                   (toAccumulator newaction newValue)
+                                    newValue)
+                                    ))
+)
 
 (defn doMultiply []
-  (set! accumulator          (ef/from "#display" (ef/get-prop :value)))
-  (set! outStandingOperator  "*")
+  (if (= (first accumulator) nil)
+    (do
+      (toAccumulator  "*")
+      (ef/at "#display" (ef/content "")))
 
-  (ef/at "#display" (ef/content ""))
-
-  (js/alert "time to multiply")
-   )
+      (doCalc "*" accumulator))
+      (ef/at "#display" (ef/content "")) )
 
 (defn doAdd []
-  (js/alert "time to Add")
-   )
+  (if (= (first accumulator) nil)
+    (do
+      (toAccumulator  "+")
+      (ef/at "#display" (ef/content "")))
+
+      (doCalc "+" accumulator))
+      (ef/at "#display" (ef/content "")) )
+
 
 (defn doSubtract []
-  (js/alert "time to Subtract")
-   )
+  (if (= (first accumulator) nil)
+    (do
+      (toAccumulator  "-")
+      (ef/at "#display" (ef/content "")))
+
+      (doCalc "-" accumulator))
+      (ef/at "#display" (ef/content "")) )
 
 (defn doDivide []
-  (js/alert "time to Divide")
-   )
+  (if (= (first accumulator) nil)
+    (do
+      (toAccumulator  "/")
+      (ef/at "#display" (ef/content "")))
+
+      (doCalc "/" accumulator))
+      (ef/at "#display" (ef/content "")) )
+
+(defn doEqual []
+  (if (= (first accumulator) nil)
+    (do
+;      (toAccumulator  "")
+      (ef/at "#display" (ef/content "")))
+
+      (ef/at "#display" (ef/content (doCalc "" accumulator))) )
+)
 
 (defn enterDecimal []
   (let [contents (ef/from "#display" (ef/get-prop :value))]
@@ -52,6 +105,7 @@
      (= "+" msg)                      (doAdd)
      (= "-" msg)                      (doSubtract)
      (= "/" msg)                      (doDivide)
+     (= "=" msg)                      (doEqual)
      :else (js/alert msg))
   (ef/at "#display" (ef/focus)) )
 
@@ -59,21 +113,11 @@
   (ef/at "#display" (ef/content ""))
   (ef/at "#display" (ef/focus)) )
 
-(defn whoclicked []
-   (js/alert "whoclicked")
-   (let [a (this-as window (.event.toElement.id.toString window))]
-        (js/alert a)
-        (+ "#" a)))
-
-(defn digit_events []
-  (ef/at ".digit" (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
-  (ef/at "#display" (ef/focus)) )
-
 (defn clear_events []
   (ef/at ".clear" (events/listen :click #(clear) ))
   (ef/at "#display" (ef/focus)) )
 
-(defn key_event [code]
+(defn determineKey_match [code]
   (let [keypressed (js/String.fromCharCode code)]
 ;    (js/alert keypressed)
      (match [keypressed]
@@ -96,20 +140,41 @@
            :else "")))
 ;    (js/String.fromCharCode keypressed)))
 
-(defn an_event [e]
+(defn determineKey_cond [code]
+   (ef/at "#display" (ef/focus))
+   (let [char (js/String.fromCharCode code)]
+     (if (contains? validKeys char) char
+                                    "" ) )
+    )
+
+(defn determineKey_cond_V1 [code]
+   (ef/at "#display" (ef/focus))
+   (let [char (js/String.fromCharCode code)]
+     (cond
+       (and (>= "9" char) (<= "0" char)) char
+       (= "." char) 			 char
+       (= "*" char)                      char
+       (= "+" char)                      char
+       (= "-" char)                      char
+       (= "/" char)                      char
+       (= "=" char)                      char
+       :else 				 char ) )
+    )
+
+(defn button_event [e]
 ;   (js/alert js/e.target.id )
    (change3 (ef/from (+ "#" js/e.target.id) (ef/get-text)) ) )
 
 (defn keyed_event [e]
 ;   (js/alert js/e.keyCode )
-   (change3 (key_event js/e.charCode) ))
+   (change3 (determineKey_cond js/e.charCode) ))
+;   (change3 (determineKey_match js/e.charCode) ))
 
 
 (defn setup_events []
-  (ef/at ".digit"    (events/listen :click an_event))
-;  (ef/at ".digit"    (events/listen :click #(change3 (ef/from (whoclicked) (ef/get-text)) )))
-;  (ef/at ".digit"    (events/listen :touchstart #(change3 (ef/from (whoclicked) (ef/get-text)) )))
-  (ef/at ".operator" (events/listen :click an_event))
+  (ef/at ".digit"    (events/listen :click button_event))
+  (ef/at ".operator" (events/listen :click button_event))
+  (ef/at "#final"    (events/listen :click button_event))
   (ef/at ".clear"    (events/listen :click #(clear) ))
   (ef/at "#body"     (events/listen :keypress keyed_event))
   (ef/at "#body"     (events/listen :click #(ef/at "#display"  (ef/focus) )))
