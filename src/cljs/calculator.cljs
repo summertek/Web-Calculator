@@ -14,8 +14,17 @@
 ;;************************************************
 (def dev-mode true)
 
+
+;;
+;;  sadly - global variables
+;;        - adcd cd javaditional sadness these used as mutable
+;;
 (def accumulator ())
-; set of valid keys
+(def enteredValue "")
+
+;;
+;; set of valid key input
+;;    - used in determineKey
 (def validKeys #{"0","1","2","3","4","5","6","7","8","9",".","*","/","+","-","="} )
 
 (defn toAccumulator [operator]
@@ -31,7 +40,7 @@
          current (ef/from "#display" (ef/get-prop :value))]
       (cond
          (= (first prev) "*")  (let [newValue (.toString (* (second prev) current)) ]
-                                   (toAccumulator newaction newValue)
+                                   (toAccumulator newaction ) ;newValue)
                                     newValue)
          (= (first prev) "+")  (let [newValue (.toString (+ (js/Number (second prev)) (js/Number current))) ]
                                    (toAccumulator newaction newValue)
@@ -96,7 +105,7 @@
      (if  (gstring/contains contents ".") () (ef/at "#display" (ef/append "."))  )
    ) )
 
-(defn change3 [msg]
+(defn change [msg]
 ; (js/alert msg)
   (cond
      (and (>= "9" msg) (<= "0" msg))  (ef/at "#display" (ef/append msg))
@@ -117,58 +126,20 @@
   (ef/at ".clear" (events/listen :click #(clear) ))
   (ef/at "#display" (ef/focus)) )
 
-(defn determineKey_match [code]
-  (let [keypressed (js/String.fromCharCode code)]
-;    (js/alert keypressed)
-     (match [keypressed]
-           ["0"] "0"
-           ["1"] "1"
-           ["2"] "2"
-           ["3"] "3"
-           ["4"] "4"
-           ["5"] "5"
-           ["6"] "6"
-           ["7"] "7"
-           ["8"] "8"
-           ["9"] "9"
-           ["."] "."
-           ["+"] "+"
-           ["-"] "-"
-           ["/"] "/"
-           ["="] "="
-           ["*"] "*"
-           :else "")))
-;    (js/String.fromCharCode keypressed)))
-
-(defn determineKey_cond [code]
+(defn determineKey [code]
    (ef/at "#display" (ef/focus))
    (let [char (js/String.fromCharCode code)]
      (if (contains? validKeys char) char
                                     "" ) )
     )
 
-(defn determineKey_cond_V1 [code]
-   (ef/at "#display" (ef/focus))
-   (let [char (js/String.fromCharCode code)]
-     (cond
-       (and (>= "9" char) (<= "0" char)) char
-       (= "." char) 			 char
-       (= "*" char)                      char
-       (= "+" char)                      char
-       (= "-" char)                      char
-       (= "/" char)                      char
-       (= "=" char)                      char
-       :else 				 char ) )
-    )
-
 (defn button_event [e]
 ;   (js/alert js/e.target.id )
-   (change3 (ef/from (+ "#" js/e.target.id) (ef/get-text)) ) )
+   (change (ef/from (+ "#" js/e.target.id) (ef/get-text)) ) )
 
 (defn keyed_event [e]
 ;   (js/alert js/e.keyCode )
-   (change3 (determineKey_cond js/e.charCode) ))
-;   (change3 (determineKey_match js/e.charCode) ))
+   (change (determineKey js/e.charCode) ))
 
 
 (defn setup_events []
