@@ -15,31 +15,51 @@
                  [cljs.core.match.macros :only [match]]))
 
 ;;************************************************
+;;
 ;; Dev stuff
+;; - used for debugging
+;; - enable console print is very useful for debugging
+;; - commenting out of the two lines speeds up compiles
+;;    - has little impact on javascript file size
 ;;************************************************
-(def dev-mode true)
-(enable-console-print!)
+;(def dev-mode true)
+;(enable-console-print!)
 
-
+;;************************************************
 ;;
 ;;  sadly - global variables
-;;        - adcd cd javaditional sadness these used as mutable
+;;        - additional sadness these used as mutable
 ;;
+;;************************************************
 (def accumulator '("" "") )
 
+;;************************************************
 ;;
 ;; set of valid key input
 ;;    - used in determineKey
+;;
+;;************************************************
 (def validKeys #{"0","1","2","3","4","5","6","7","8","9",".","*","/","+","-","="} )
-(def functions {"+" +, "-" -, "/" /, "*" *})
 
+(defn noaction [prev current]
+      current)
 
-;
-; This function definition is setup first with one argument, then again with two arguments
-;
+;;************************************************
+;;
+;; set of valid math functions
+;;    - map character to function (yes actual clojure/javascript function
+;;
+;;************************************************
+(def operations {"+" +, "-" -, "/" /, "*" *, "" noaction, " " noaction})
+
+;;************************************************
+;;
+;; This function definition is setup first with one argument, then again with two arguments
+;;
+;;************************************************
 (defn toAccumulator
    ([operator]
-    (if (= operator "")
+    (if (or (= operator "") (= operator " "))
        (set! accumulator  '("" ""))
        (let [acc (ef/from "#display" (ef/get-prop :value))]
            (set! accumulator    (list operator acc ))))
@@ -47,26 +67,31 @@
 
    ([operator value]
       (set! accumulator    (list operator value ))
-      )
-)
+      ) )
 
+;;************************************************
+;;
+;; check out how the map(functions) is used to pass the appropriate math function to execute
+;;      - based on the decoded input from the user
+;;
+;; also the defintion of meta data for the function
+;;
+;;************************************************
 (defn doCalc [newaction buffer]
 "this is where comments can live"
 ^{:calculator/meta-data "this is information that can be used"}
    (let [prev    buffer
          current (ef/from "#display" (ef/get-prop :value))
-         newValue (.toString ((get functions (first prev)) (js/Number (second prev)) (js/Number current))) ]
+         newValue (.toString ((get operations (first prev)) (js/Number (second prev)) (js/Number current))) ]
                (toAccumulator newaction newValue)
-               newValue)
-)
+               newValue) )
 
 (defn doEqual []
       (ef/at "#display" (ef/content (doCalc "" accumulator))))
 
 (defn enterDecimal []
   (let [contents (ef/from "#display" (ef/get-prop :value))]
-     (if  (gstring/contains contents ".") () (ef/at "#display" (ef/append "."))  )
-   ) )
+     (if  (gstring/contains contents ".") () (ef/at "#display" (ef/append "."))  )   ) )
 
 (defn dofunction [command]
   (if (= (first accumulator)  "")
@@ -93,13 +118,13 @@
    (ef/at "#display" (ef/focus))
    (let [char (js/String.fromCharCode code)]
      (if (contains? validKeys char) char
-                                    "" ) )
-    )
-;****************************************
-;
-;  Event Handlers
-;
-;****************************************
+                                    "" ) ) )
+
+;;****************************************
+;;
+;;  Event Handlers
+;;
+;;****************************************
 
 (defn clear_events []
   (set! accumulator  '("" ""))
@@ -116,6 +141,11 @@
 (defn keyed_event [e]
    (change (determineKey js/e.charCode) ))
 
+;;****************************************
+;;
+;;  Setup Event Handlers
+;;
+;;****************************************
 
 (defn setup_events []
   (ef/at ".digit"    (events/listen :click button_event))
@@ -125,8 +155,13 @@
   (ef/at "#ClearAll" (events/listen :click clear ))
   (ef/at "#final"    (events/listen :click button_event))
   (ef/at "#body"     (events/listen :keypress keyed_event))
-  (ef/at "#body"     (events/listen :click #(ef/at "#display"  (ef/focus) )))
-  )
+  (ef/at "#body"     (events/listen :click #(ef/at "#display"  (ef/focus) )))  )
+
+;;****************************************
+;;
+;;  Startup code
+;;
+;;****************************************
 
 (defn setup []
   (setup_events)
