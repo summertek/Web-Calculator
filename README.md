@@ -1,6 +1,6 @@
 # calculator
 
-A Clojurescript Web application that is a very simple web calculator. This is a beginner project to test out the process of building a
+A Clojurescript Web application that is a very simple web calculator. This is a beginner project to learn the process of building a
 Clojurescript application.
 
 ## Usage
@@ -17,6 +17,6 @@ I am pleased about is how little code I had to write to accomplish the task. The
 
 ## License
 
-Copyright © 2013 Peter Schmidt
+Copyright © 2014 Peter Schmidt
 
 Distributed under the Eclipse Public License, the same as Clojure.
