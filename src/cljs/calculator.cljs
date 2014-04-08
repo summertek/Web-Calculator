@@ -128,7 +128,7 @@
 
 (defn clear_events []
   (set! accumulator  '("" ""))
-
+  (ef/at "#display" (ef/content ""))
   (ef/at "#display" (ef/focus)) )
 
 (defn clear []
